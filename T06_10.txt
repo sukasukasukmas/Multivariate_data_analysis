@@ -1,0 +1,16 @@
+T06_10    59    4 format
+) Data from Table 6.10 on p. 340 in
+) Applied Mulivariate Statistical Analysis, 5th Edition
+) by Richard A. Johnson and Dean W. Wichern, Prentice Hall, 2002
+) These data were edited from file T6-10.DAT on disk from book
+) The fuel column containing "gasoline" or "diesel" was deleted and
+) a new column with fuel type coded as 1 (gasoline) or 2 (diesel)
+) inserted at start
+) Milk transportation-cost data
+) Col. 1: Fuel type (1 = gasoline, 2 = diesel)
+) Col. 2: X1 = fuel cost (cents/mi)
+) Col. 3: X2 = repair cost (cents/mi)
+) Col. 4: X3 = capital cost (cents/mi)
+
+
+

@@ -1,0 +1,18 @@
+T06_15    70    8 format
+) Data from Table 6.15 p. 348 in
+) Applied Mulivariate Statistical Analysis, 5th Edition
+) by Richard A. Johnson and Dean W. Wichern, Prentice Hall, 2002
+) These data were edited from file T6-15.DAT on disk from book
+) Fly species indicator moved to column 1
+) Biting fly data
+) Col. 1: Fly species (0 = L. torrens, 1 = L. carteri)
+) Col. 2: x1 = wing length
+) Col. 3: x2 = wing width
+) Col. 4: x3 = third palp length
+) Col. 5: x4 = third palp width
+) Col. 6: x5 = fourth palp length
+) Col. 7: x6 = length of antennal segment 12
+) Col. 8: x7 = length of antennal segment 13
+
+
+Two species of biting flies (genus Leptoconops) are so similar morphologically, that formany years they were thought to be the same. Biological differences such as sex ratios of emerging flies and biting habits were found to exist. Do the taxonomic data listed in part in Table 6.15 on page 352 and on the website www.prenhall.com/statistics indicate any difference in the two species L. carteri and L. torrens? Test for the equality of the two population mean vectors using a = .05. If the hypotheses of equal mean vectors is rejected, determine the mean components (or linear combinations of mean components) mostresponsible for rejecting Ho. Justify your use of normal-theory methods for these data.

@@ -1,0 +1,157 @@
+---
+title: "135proj"
+output: html_document
+date: "2023-03-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+rm(list = ls())
+```
+
+# Introduction
+
+There are two types of biting flies called Leptoconops that appear very similar to each other. For a long time, people believed that they were the same species due to their physical similarities. However, further research has revealed that there are biological differences between the two, including varying sex ratios of newly hatched flies and different biting patterns. In this project, I will implement various statistical tool to examine the difference between the two species and use classfication method to classify a particular fly with given information.
+
+# Analysis
+
+## Visualization
+
+```{r}
+setwd("C:/Users/s1a1m/OneDrive/文档/study/2023winter/sta135/proj")
+dat<- read.table("T6-15.dat", header=FALSE)
+colnames(dat) <- c("wing_length", "wing_width", "third_palp_length","third_palp_width",
+                   "fourth_palp_length","segment_12","segment_13","species")
+
+split_data <- split(dat, dat[, "species"])
+torrens=split_data$`0`
+carteri=split_data$`1`
+torrens=torrens[, -which(names(torrens) == "species")]
+carteri=carteri[, -which(names(carteri) == "species")]
+
+```
+
+```{r}
+dat$species=as.factor(dat$species)
+library(gridExtra)
+library(ggplot2)
+p0=ggplot(dat, aes(x = species, y = wing_length)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "wing_length")
+
+p1=ggplot(dat, aes(x = species, y = wing_width)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "wing_width")
+
+p2=ggplot(dat, aes(x = species, y = third_palp_length)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "third_palp_length")
+
+p3=ggplot(dat, aes(x = species, y = third_palp_width)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "third_palp_width")
+
+p4=ggplot(dat, aes(x = species, y = fourth_palp_length)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "fourth_palp_length")
+
+p5=ggplot(dat, aes(x = species, y = segment_12)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "segment_12")
+
+p6=ggplot(dat, aes(x = species, y = segment_13)) +
+  geom_boxplot() +
+  scale_x_discrete(name = "Species", labels = c("torrens", "carteri")) +
+  labs(x = "Species", y = "segment_13")
+
+grid.arrange(p0,p1, p2, p3,p4,p5,p6, ncol = 3,nrow=3)
+```
+I would like to first examine the data using visualization to check for disparities between the two species. As we can see from the boxplots above, although many features of the two species are quite similar, One can easily distinguish the specie by looking at the third palp length and the fourth palp length of a fly to tell if it belong to the group of
+torrens or carteri.
+
+## Hotellings'$T^2$ Test
+
+Next I would like to use Hotellings'$T^2$ to test $H_0:\vec{\mu}_1 - \vec{\mu}_2 = 0$ vs $H_A:\vec{\mu}_1 - \vec{\mu}_2 \neq 0$.
+```{r}
+n<-c(35,35)
+p<-7
+
+tmean<-colMeans(torrens)
+cmean<-colMeans(carteri)
+
+d<-cmean-tmean
+
+St<-var(torrens)
+Sc<-var(carteri)
+Sp<-((n[1]-1)*St+(n[2]-1)*Sc)/(sum(n)-2)
+
+t2 <- t(d)%*%solve(sum(1/n)*Sp)%*%d
+cat("T-square is ", t2)
+
+alpha<-0.05
+
+
+cval <- (sum(n)-2)*p/(sum(n)-p-1)*qf(1-alpha,p,sum(n)-p-1)
+cat('critical value is ', cval)
+
+```
+
+By comparing $T^2$ with $\frac{(n_1+n_2-2)p}{n_1+n_2-1-p}F_{p,n_1+n_2-1-p}(\alpha)$ where $n_1$ and $n_2$ are numbers of observations from both spieces, $p$ is the numbers of variates, and $\alpha=0.05$. Since $106.12>16.59$, we reject H0 and conclude that there is significant difference between the two species
+X
+## Confidence Interval of mean difference
+
+Next, we conducted a 95% Confidence Interval of mean difference.
+
+```{r}
+wd<-sqrt(cval*diag(Sp)*sum(1/n))
+Cis<-cbind(d-wd,d+wd)
+
+cat("95% simultaneous confidence interval","\n")
+Cis
+
+```
+
+As we can see from the output above, there can be a significant difference in wing length, third palp length, and fourth palp length between the two species, which helps reinforce our finding.
+
+# classification
+
+Lastly we will utilize Naive Bayes Classifier to perform classification. We first split data into 60% training and 40% testing. Then, based on the predicted data, we obtain the following confusion matrix:
+
+```{r}
+library(e1071)
+library(caTools)
+library(caret)
+split <- sample.split(dat, SplitRatio = 0.6)
+train_cl <- subset(dat, split == "TRUE")
+test_cl <- subset(dat, split == "FALSE")
+ 
+# Feature Scaling
+train_scale <- scale(train_cl[, 1:7])
+test_scale <- scale(test_cl[, 1:7])
+ 
+# Fitting Naive Bayes Model
+# to training dataset
+set.seed(120)  # Setting Seed
+classifier_cl <- naiveBayes(species ~ ., data = train_cl)
+
+ 
+# Predicting on test data'
+y_pred <- predict(classifier_cl, newdata = test_cl)
+ 
+# Confusion Matrix
+cm <- table(test_cl$species, y_pred)
+cm
+ 
+# Model Evaluation
+confusionMatrix(cm)
+```
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE} 
+
+```
